@@ -1,0 +1,12 @@
+{
+    "name": "belltowncrime-worker",
+    "description": "Belltown Crime Mapping Worker",
+    "version": "0.0.1",
+    "author": "Matthew Loar",
+    "email": "matthew@loar.name",
+    "main": "./app",
+    "dependencies": {
+      "request": "2.9.x",
+      "pg": "0.6.x"
+    }
+}
