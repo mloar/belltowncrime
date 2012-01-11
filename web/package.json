@@ -1,0 +1,13 @@
+{
+    "name": "belltowncrime-wweb",
+    "description": "Belltown Crime Mapping Web App",
+    "version": "0.0.1",
+    "author": "Matthew Loar",
+    "email": "matthew@loar.name",
+    "main": "./app",
+    "dependencies": {
+      "bogart": "0.3.x"
+      "bogart-jade": "0.1.x"
+      "pg": "0.6.x"
+    }
+}
