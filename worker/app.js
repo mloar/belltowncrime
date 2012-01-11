@@ -87,6 +87,8 @@ q('http://data.seattle.gov/views/948u-h4tt/', function (err, response, body) {
                             });
                         }
 
+                        // Make sure at least one query is executed so that the
+                        // drain event fires.
                         client.query("SELECT COUNT(*) FROM crimes");
                         client.resumeDrain();
                     }
