@@ -87,9 +87,8 @@ q('http://data.seattle.gov/views/948u-h4tt/', function (err, response, body) {
                             });
                         }
 
-                        // Make sure at least one query is executed so that the
-                        // drain event fires.
-                        client.query("SELECT COUNT(*) FROM crimes");
+                        // Remove rows erroneously exposed in view.
+                        client.query("DELETE FROM crimes WHERE hundred_block_location LIKE '%RICHMOND BEACH DR' OR hundred_block_location LIKE '%PINE ST'");
                         client.resumeDrain();
                     }
                     else if (err)
