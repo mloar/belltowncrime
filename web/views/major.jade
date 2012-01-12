@@ -1,0 +1,15 @@
+h1 Belltown Crime
+h2 (beta)
+table
+    tr
+        th Hundred Block Location
+        th Offense
+        th Date
+        th Link
+    each row in rows
+        tr
+            td= row.hundred_block_location
+            td= row.description
+            td= row.occurred_date
+            td
+                a(href='http://web1.seattle.gov/police/records/PoliceReports/PoliceReport.ashx?go='+row.go_number)= row.go_number
