@@ -3,4 +3,14 @@ html(lang='en')
     head
         title Belltown Crime
         link(href='/main.css', rel='stylesheet')
-    body!= body
+    body
+        header
+            h1 Belltown Crime
+            h2 (beta)
+            div(style='float:left;width:33%;text-align:center;')
+                a(href="/") Recent Crimes
+            div(style='float:left;width:33%;text-align:center;')
+                a(href="/major") Major Crimes
+            div(style='float:left;width:33%;text-align:center;')
+                a(href="/drugs") Drug Crimes
+        div(style='clear:both')!= body

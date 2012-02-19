@@ -1,0 +1,19 @@
+script(type='text/javascript', src='https://www.google.com/jsapi')
+script(type='text/javascript')
+    google.load('visualization', '1', "{'packages': ['corechart']}")
+    google.setOnLoadCallback(drawChart);
+    function drawChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn
+h1 Belltown Crime
+h2 (beta)
+table
+    tr
+        th Hundred Block Location
+        th Offense
+        th Incidents in past 7 days
+    each row in rows
+        tr
+            td= row.hundred_block_location
+            td= row.description
+            td= row.incident_count
