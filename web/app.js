@@ -36,7 +36,7 @@ router.get('/drugs', function (req) {
     return bogart.promisify(client.query, client)(
         "SELECT DISTINCT hundred_block_location, description, occurred_date, go_number FROM crimes LEFT JOIN offense_descriptions ON crimes.offense_code = offense_descriptions.offense_code WHERE occurred_date > NOW() - INTERVAL '2 months' AND crimes.offense_code LIKE '35__' ORDER BY occurred_date DESC").then(
         function (result) {
-            return viewEngine.respond('major.jade',
+            return viewEngine.respond('drugs.jade',
             {
                 locals: result
             });
