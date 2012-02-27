@@ -13,7 +13,7 @@ client.connect();
 var router = bogart.router();
 router.get('/', function (req) {
     return bogart.promisify(client.query, client)(
-        "SELECT hundred_block_location, description, COUNT(go_number) AS incident_count FROM crimes LEFT JOIN offense_descriptions ON crimes.offense_code = offense_descriptions.offense_code WHERE occurred_date > NOW() - INTERVAL '7 days 8 hours' AND NOT crimes.offense_code = 'X' GROUP BY hundred_block_location, crimes.offense_code, offense_descriptions.description ORDER By incident_count DESC"
+        "SELECT hundred_block_location, description, COUNT(go_number) AS incident_count FROM crimes LEFT JOIN offense_descriptions ON crimes.offense_code = offense_descriptions.offense_code WHERE occurred_date > NOW() - INTERVAL '7 days 8 hours' AND NOT crimes.offense_code = 'X' GROUP BY hundred_block_location, crimes.offense_code, offense_descriptions.description ORDER By incident_count DESC, hundred_block_location"
         ).then(
         function (result) {
             return viewEngine.respond('index.jade',
