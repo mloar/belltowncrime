@@ -6,6 +6,7 @@
     "email": "matthew@loar.name",
     "main": "./app",
     "dependencies": {
+      "apricot": "0.0.x",
       "promised-io": "v0.2.3",
       "request": "2.9.x",
       "jade": ">=0.15.4",

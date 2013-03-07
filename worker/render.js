@@ -89,6 +89,17 @@ function do_major() {
             });
 }
 
+function do_liquor() {
+    return exports.promisify(client.query, client)(
+        "SELECT * FROM liquor_actions ORDER BY date DESC").then(
+            function (result) {
+                return exports.viewEngine.render('liquor.jade', {locals: result}).then(
+                function (html) {
+                    fs.writeFileSync('out/liquor', html);
+                });
+            });
+}
+
 function do_index() {
     return exports.promisify(client.query, client)(
         "SELECT hundred_block_location, description, COUNT(DISTINCT go_number) AS incident_count FROM crimes LEFT JOIN offense_descriptions ON crimes.offense_code = offense_descriptions.offense_code WHERE occurred_date > NOW() - INTERVAL '7 days 8 hours' AND NOT crimes.offense_code = 'X' GROUP BY hundred_block_location, crimes.offense_code, offense_descriptions.description ORDER By incident_count DESC, hundred_block_location"
@@ -103,6 +114,6 @@ function do_index() {
 }
 
 client.connect();
-promise.all([do_index(), do_major(), do_drugs()]).then(function (whatever) {
+promise.all([do_index(), do_major(), do_drugs(), do_liquor()]).then(function (whatever) {
     client.end();
 });

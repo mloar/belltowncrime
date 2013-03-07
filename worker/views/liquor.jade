@@ -1,0 +1,22 @@
+table
+    tr
+        th Current Business Name
+        th New Business Name
+        th Business Location
+        th Current Applicant
+        th New Applicant
+        th License Type
+        th Application Type
+        th License Number
+        th Date
+    each row in rows
+        tr
+            td= row.current_business_name
+            td= row.new_business_name
+            td= row.business_location
+            td= row.current_applicant
+            td= row.new_applicant
+            td= row.license_type
+            td= row.application_type
+            td= row.license_number
+            td= row.date
