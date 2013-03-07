@@ -79,7 +79,7 @@ function do_drugs() {
 }
 
 function do_major() {
-    exports.promisify(client.query, client)(
+    return exports.promisify(client.query, client)(
         "SELECT DISTINCT hundred_block_location, description, occurred_date, go_number FROM crimes LEFT JOIN offense_descriptions ON crimes.offense_code = offense_descriptions.offense_code WHERE occurred_date > NOW() - INTERVAL '2 months' AND (crimes.offense_code LIKE '12__' OR crimes.offense_code LIKE '130_' OR crimes.offense_code LIKE '22__' OR crimes.offense_code LIKE '9__') ORDER BY occurred_date DESC").then(
             function (result) {
                 return exports.viewEngine.render('major.jade', {locals: result}).then(
@@ -90,7 +90,7 @@ function do_major() {
 }
 
 function do_index() {
-    exports.promisify(client.query, client)(
+    return exports.promisify(client.query, client)(
         "SELECT hundred_block_location, description, COUNT(DISTINCT go_number) AS incident_count FROM crimes LEFT JOIN offense_descriptions ON crimes.offense_code = offense_descriptions.offense_code WHERE occurred_date > NOW() - INTERVAL '7 days 8 hours' AND NOT crimes.offense_code = 'X' GROUP BY hundred_block_location, crimes.offense_code, offense_descriptions.description ORDER By incident_count DESC, hundred_block_location"
     ).then(
         function (result) {
