@@ -43,7 +43,7 @@ promisify(q.post)({uri: 'http://www.liq.wa.gov/lcbservices/LicensingInfo/MediaRe
                     var mode = 0;
                     var newApps = [];
                     var dateExp = /Notification Date:/;
-                    var otherExp = new RegExp("(\\w[\\w ]*)(\\(s\\))?:(</b>)?&nbsp;");
+                    var otherExp = new RegExp("(\\w[\\w ]*)(\\(s\\))?(</a>)?:(</b>)?&nbsp;");
                     doc.find('table[border="1"] tr').each(function (r) { 
                         var cells = r.cells._toArray();
                         if (cells[0].tagName == 'TH')
@@ -69,6 +69,7 @@ promisify(q.post)({uri: 'http://www.liq.wa.gov/lcbservices/LicensingInfo/MediaRe
                     var results = newApps.filter(function (r) {
                         return /98121/.test(r['New Business Location']) || /98121/.test(r['Business Location']);
                     });
+                    console.log(results);
 
                     var getCallback = function (d) {
                         return function (err, result) {
@@ -93,7 +94,7 @@ promisify(q.post)({uri: 'http://www.liq.wa.gov/lcbservices/LicensingInfo/MediaRe
                                 results[i]['Business Location'],
                                 results[i]['Current Applicant'] || results[i]['Applicant'],
                                 results[i]['New Applicant'],
-                                results[i]['License Type'],
+                                results[i]['Liquor License Type'],
                                 results[i]['Application Type'],
                                 results[i]['License Number'],
                                 results[i]['Date'],
