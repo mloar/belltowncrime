@@ -4,7 +4,6 @@ var jade   = require('jade'),
   fs        = require('fs'),
   promise   = require('promised-io/lib/promise'),
   when      = promise.when,
-  settings = require('../settings'),
   pg        = require('pg');
 
 exports.viewEngine = {};
@@ -65,7 +64,7 @@ exports.promisify = function(nodeAsyncFn, context) {
   };
 };
 
-var client = new pg.Client(settings.connectionString);
+var client = new pg.Client(process.env.DATABASE_URL);
 
 function do_drugs() {
     return exports.promisify(client.query, client)(

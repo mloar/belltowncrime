@@ -1,8 +1,7 @@
 var q = require('request')
     ,pg = require('pg')
-    ,settings = require('../settings')
     ;
-var client = new pg.Client(settings.connectionString);
+var client = new pg.Client(process.env.DATABASE_URL);
 client.connect();
 client.on('drain', function() {
   process.exit();

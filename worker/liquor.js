@@ -2,7 +2,6 @@ var q = require('request')
     ,pg = require('pg')
     ,apricot = require('apricot').Apricot
     ,promise = require('promised-io/lib/promise.js')
-    ,settings = require('../settings')
     ;
 /**
  * Wraps a Node.JS style asynchronous function `function(err, result) {}` 
@@ -32,7 +31,7 @@ var promisify = function(nodeAsyncFn, context) {
   };
 };
 
-var client = new pg.Client(settings.connectionString);
+var client = new pg.Client(process.env.DATABASE_URL);
 client.connect();
 
 promisify(q.post)({uri: 'http://www.liq.wa.gov/lcbservices/LicensingInfo/MediaReleasesReport3Excel.asp', body:

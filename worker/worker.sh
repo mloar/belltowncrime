@@ -1,5 +1,6 @@
 #!/bin/sh
 PATH=$PATH:/usr/local/bin
+export DATABASE_URL='tcp://user:pass@host:port/db'
 cd `dirname $0`
 node update.js
 node liquor.js
