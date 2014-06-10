@@ -64,6 +64,11 @@ q('http://data.seattle.gov/views/948u-h4tt/', function (err, response, body) {
                         var results = JSON.parse(body);
 
                         client.pauseDrain();
+                        client.query({
+                            name: 'trim',
+                            text: "DELETE FROM crimes WHERE occurred_date < NOW() - INTERVAL '2 months'",
+                            values: []
+                            });
                         for (var i = 0; i < results.length; i++)
                         {
                             client.query({
