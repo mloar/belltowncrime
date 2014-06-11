@@ -1,15 +1,15 @@
 {
-    "name": "belltowncrime-worker",
-    "description": "Belltown Crime Mapping Worker",
-    "version": "0.0.1",
-    "author": "Matthew Loar",
-    "email": "matthew@loar.name",
-    "main": "./app",
-    "dependencies": {
-      "apricot": "0.0.x",
-      "promised-io": "v0.2.3",
-      "request": "2.9.x",
-      "jade": ">=0.15.4",
-      "pg": "0.6.x"
-    }
+  "name": "belltowncrime",
+  "description": "Belltown Crime Website Generator",
+  "version": "0.1.0",
+  "author": "Matt Loar",
+  "email": "matt@loar.name",
+  "main": "./app",
+  "dependencies": {
+    "apricot": "0.0.x",
+    "promised-io": "v0.2.3",
+    "request": "2.9.x",
+    "jade": ">=0.15.4",
+    "pg": "0.6.x"
+  }
 }
