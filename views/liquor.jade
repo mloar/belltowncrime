@@ -13,7 +13,7 @@ table
         tr
             td= row.current_business_name
             td= row.new_business_name
-            td= row.business_location
+            td!= row.business_location
             td= row.current_applicant
             td= row.new_applicant
             td= row.license_type
