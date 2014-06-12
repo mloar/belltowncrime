@@ -1,0 +1,73 @@
+var
+     bogart = require('bogart')
+    ,fs     = require('fs')
+    ,jade   = require('jade')
+    ,path   = require('path')
+    ,query  = require('./common').query
+    ;
+
+var render = function(view, opts) {
+    opts = opts || {};
+
+    opts.locals = opts.locals || {};
+
+    var
+    viewPath    = path.join('views/', view),
+    layout      = opts.layout === undefined ? true : opts.layout;
+    layout      = layout === true ? 'layout.jade' : layout;
+
+    var renderedView = jade.compile(fs.readFileSync(viewPath, { encoding: 'utf8' }), opts)(opts.locals);
+
+    if (layout) {
+        opts.locals.body = renderedView;
+        opts.layout = false;
+
+        return render(layout, opts);
+    }
+
+    return renderedView;
+};
+
+var router = bogart.router();
+router.get('/', function (req) {
+    return query("SELECT hundred_block_location, description, COUNT(DISTINCT go_number) AS incident_count FROM crimes LEFT JOIN offense_descriptions ON crimes.offense_code = offense_descriptions.offense_code WHERE occurred_date > NOW() - INTERVAL '7 days 8 hours' AND NOT crimes.offense_code = 'X' GROUP BY hundred_block_location, crimes.offense_code, offense_descriptions.description ORDER By incident_count DESC, hundred_block_location").then(
+        function (result) {
+            return bogart.html(render('index.jade', {locals: result}));
+        });
+});
+router.get('/drugs', function (req) {
+    return query(
+        "SELECT DISTINCT hundred_block_location, description, occurred_date, go_number FROM crimes LEFT JOIN offense_descriptions ON crimes.offense_code = offense_descriptions.offense_code WHERE occurred_date > NOW() - INTERVAL '2 months' AND crimes.offense_code LIKE '35__' ORDER BY occurred_date DESC").then(
+            function (result) {
+                return bogart.html(render('drugs.jade', {locals: result}));
+            });
+});
+router.get('/liquor', function (req) {
+    return query(
+    "SELECT * FROM liquor_actions ORDER BY date DESC").then(
+        function (result) {
+            return bogart.html(render('liquor.jade', {locals: result}));
+        });
+});
+router.get('/major', function (req) {
+    return query(
+        "SELECT DISTINCT hundred_block_location, description, occurred_date, go_number FROM crimes LEFT JOIN offense_descriptions ON crimes.offense_code = offense_descriptions.offense_code WHERE occurred_date > NOW() - INTERVAL '2 months' AND (crimes.offense_code LIKE '12__' OR crimes.offense_code LIKE '130_' OR crimes.offense_code LIKE '22__' OR crimes.offense_code LIKE '9__') ORDER BY occurred_date DESC").then(
+            function (result) {
+                return bogart.html(render('major.jade', {locals: result}));
+            });
+});
+router.get('/main.css', function (req) {
+    var css = fs.readFileSync('main.css', { encoding: 'utf8' });
+    return {
+        status: 200,
+        headers: {
+            'content-type': 'text/css',
+            'content-length': css.length
+        },
+        body: css
+    };
+});
+
+var app = bogart.app();
+app.use(router);
+app.start(process.env.PORT);

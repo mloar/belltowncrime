@@ -1,8 +1,8 @@
-var imports
-,promise   = require('promised-io/promise')
-,pg        = require('pg')
-,url       = require('url')
-;
+var  bogart     = require('bogart')
+    ,promise    = require('promised-io/promise')
+    ,pg         = require('pg')
+    ,url        = require('url')
+    ;
 
 var parseConnectionString = function(str) {
   //unix socket
@@ -20,40 +20,13 @@ var parseConnectionString = function(str) {
   config.ssl = true;
   return config;
 };
-/**
- * Wraps a Node.JS style asynchronous function `function(err, result) {}` 
- * to return a `Promise`.
- *
- * @param {Function} nodeAsyncFn  A node style async function expecting a callback as its last parameter.
- * @param {Object}   context      Optional, if provided nodeAsyncFn is run with `this` being `context`.
- *
- * @returns {Function} A function that returns a promise.
- */
-exports.promisify = function(nodeAsyncFn, context) {
-  return function() {
-    var defer = promise.defer()
-      , args = Array.prototype.slice.call(arguments);
-
-    args.push(function(err, val) {
-      if (err !== null) {
-        return defer.reject(err);
-      }
-
-      return defer.resolve(val);
-    });
-
-    nodeAsyncFn.apply(context || {}, args);
-
-    return defer.promise;
-  };
-};
 
 exports.query = function (q) {
-    return exports.promisify(pg.connect, pg)(
+    return bogart.promisify(pg.connect, pg)(
         parseConnectionString(process.env.DATABASE_URL)
     ).then(
         function (client) {
-            return exports.promisify(client.query, client)(q);
+            return bogart.promisify(client.query, client)(q);
         });
 }
 

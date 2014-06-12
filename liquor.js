@@ -1,40 +1,13 @@
 var q = require('request')
     ,query = require('./common').query
     ,apricot = require('apricot').Apricot
-    ,promise = require('promised-io/promise')
+    ,bogart = require('bogart')
     ;
-/**
- * Wraps a Node.JS style asynchronous function `function(err, result) {}` 
- * to return a `Promise`.
- *
- * @param {Function} nodeAsyncFn  A node style async function expecting a callback as its last parameter.
- * @param {Object}   context      Optional, if provided nodeAsyncFn is run with `this` being `context`.
- *
- * @returns {Function} A function that returns a promise.
- */
-var promisify = function(nodeAsyncFn, context) {
-  return function() {
-    var defer = promise.defer()
-      , args = Array.prototype.slice.call(arguments);
 
-    args.push(function(err, val) {
-      if (err !== null) {
-        return defer.reject(err);
-      }
-
-      return defer.resolve(val);
-    });
-
-    nodeAsyncFn.apply(context || {}, args);
-
-    return defer.promise;
-  };
-};
-
-promisify(q.post)({uri: 'http://www.liq.wa.gov/lcbservices/LicensingInfo/MediaReleasesReport3Excel.asp', body:
+bogart.promisify(q.post)({uri: 'http://www.liq.wa.gov/lcbservices/LicensingInfo/MediaReleasesReport3Excel.asp', body:
     'txtFormat=Excel&cboCity=SEATTLE&hiddenCounty=King', headers: {'Content-Type':
     'application/x-www-form-urlencoded'}}).then(function (resp) {
-            promisify(apricot.parse)(resp.body).then(
+            return bogart.promisify(apricot.parse)(resp.body).then(
                 function (doc) {
                     var mode = 0;
                     var newApps = [];
