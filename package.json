@@ -9,7 +9,9 @@
     "url": "https://github.com/mloar/belltowncrime.git"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "update": "node update.js",
+    "liquor": "node liquor.js"
   },
   "engines": {
     "node": "0.11.13"
