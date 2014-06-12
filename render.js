@@ -2,9 +2,9 @@ var jade   = require('jade'),
   path      = require('path'),
   extname   = path.extname,
   fs        = require('fs'),
-  promise   = require('promised-io/lib/promise'),
-  when      = promise.when,
-  pg        = require('pg');
+  query     = require('./common').query,
+  end       = require('./common').end,
+  waitAll   = require('./common').waitAll;
 
 exports.viewEngine = {};
 exports.viewEngine.render = function(view, opts) {
@@ -21,98 +21,57 @@ exports.viewEngine.render = function(view, opts) {
 
     layout = layout === true ? 'layout' + ext : layout;
 
-    return when(promise.execute(fs.readFile, viewPath, 'utf8'), function (str) {
-        var renderedView = jade.compile(str, opts)(opts.locals);
+    var renderedView = jade.compile(fs.readFileSync(viewPath, { encoding: 'utf8' }), opts)(opts.locals);
 
-        if (layout) {
-            opts.locals.body = renderedView;
-            opts.layout = false;
+    if (layout) {
+        opts.locals.body = renderedView;
+        opts.layout = false;
 
-            return self.render(layout, opts);
-        }
+        return self.render(layout, opts);
+    }
 
-        return renderedView;
-    });
+    return renderedView;
 };
 exports.viewEngine.views = 'views/';
 exports.viewEngine.output = 'out/';
-/**
- * Wraps a Node.JS style asynchronous function `function(err, result) {}` 
- * to return a `Promise`.
- *
- * @param {Function} nodeAsyncFn  A node style async function expecting a callback as its last parameter.
- * @param {Object}   context      Optional, if provided nodeAsyncFn is run with `this` being `context`.
- *
- * @returns {Function} A function that returns a promise.
- */
-exports.promisify = function(nodeAsyncFn, context) {
-  return function() {
-    var defer = promise.defer()
-      , args = Array.prototype.slice.call(arguments);
-
-    args.push(function(err, val) {
-      if (err !== null) {
-        return defer.reject(err);
-      }
-
-      return defer.resolve(val);
-    });
-
-    nodeAsyncFn.apply(context || {}, args);
-
-    return defer.promise;
-  };
-};
-
-var client = new pg.Client(process.env.DATABASE_URL);
 
 function do_drugs() {
-    return exports.promisify(client.query, client)(
+    return query(
         "SELECT DISTINCT hundred_block_location, description, occurred_date, go_number FROM crimes LEFT JOIN offense_descriptions ON crimes.offense_code = offense_descriptions.offense_code WHERE occurred_date > NOW() - INTERVAL '2 months' AND crimes.offense_code LIKE '35__' ORDER BY occurred_date DESC").then(
             function (result) {
-                return exports.viewEngine.render('drugs.jade', {locals: result}).then(
-                    function (html) {
-                        fs.writeFileSync('out/drugs', html);
-                    });
+                var html = exports.viewEngine.render('drugs.jade', {locals: result});
+                console.log('drugs');
+                return fs.writeFileSync('out/drugs', html);
             });
 }
 
 function do_major() {
-    return exports.promisify(client.query, client)(
+    return query(
         "SELECT DISTINCT hundred_block_location, description, occurred_date, go_number FROM crimes LEFT JOIN offense_descriptions ON crimes.offense_code = offense_descriptions.offense_code WHERE occurred_date > NOW() - INTERVAL '2 months' AND (crimes.offense_code LIKE '12__' OR crimes.offense_code LIKE '130_' OR crimes.offense_code LIKE '22__' OR crimes.offense_code LIKE '9__') ORDER BY occurred_date DESC").then(
             function (result) {
-                return exports.viewEngine.render('major.jade', {locals: result}).then(
-                function (html) {
-                    fs.writeFileSync('out/major', html);
-                });
+                var html = exports.viewEngine.render('major.jade', {locals: result});
+                console.log('major');
+                return fs.writeFileSync('out/major', html);
             });
 }
 
 function do_liquor() {
-    return exports.promisify(client.query, client)(
+    return query(
         "SELECT * FROM liquor_actions ORDER BY date DESC").then(
             function (result) {
-                return exports.viewEngine.render('liquor.jade', {locals: result}).then(
-                function (html) {
-                    fs.writeFileSync('out/liquor', html);
-                });
+                var html = exports.viewEngine.render('liquor.jade', {locals: result});
+                console.log('liquor');
+                return fs.writeFileSync('out/liquor', html);
             });
 }
 
 function do_index() {
-    return exports.promisify(client.query, client)(
-        "SELECT hundred_block_location, description, COUNT(DISTINCT go_number) AS incident_count FROM crimes LEFT JOIN offense_descriptions ON crimes.offense_code = offense_descriptions.offense_code WHERE occurred_date > NOW() - INTERVAL '7 days 8 hours' AND NOT crimes.offense_code = 'X' GROUP BY hundred_block_location, crimes.offense_code, offense_descriptions.description ORDER By incident_count DESC, hundred_block_location"
-    ).then(
+    return query("SELECT hundred_block_location, description, COUNT(DISTINCT go_number) AS incident_count FROM crimes LEFT JOIN offense_descriptions ON crimes.offense_code = offense_descriptions.offense_code WHERE occurred_date > NOW() - INTERVAL '7 days 8 hours' AND NOT crimes.offense_code = 'X' GROUP BY hundred_block_location, crimes.offense_code, offense_descriptions.description ORDER By incident_count DESC, hundred_block_location").then(
         function (result) {
-            return exports.viewEngine.render('index.jade', {locals: result}).then(
-                function (html)
-                {
-                    fs.writeFileSync('out/index.html', html);
-                });
+            var html = exports.viewEngine.render('index.jade', {locals: result});
+            console.log('index');
+            return fs.writeFileSync('out/index.html', html);
         });
 }
 
-client.connect();
-promise.all([do_index(), do_major(), do_drugs(), do_liquor()]).then(function (whatever) {
-    client.end();
-});
+waitAll([do_index(), do_major(), do_drugs(), do_liquor()]).then(end());

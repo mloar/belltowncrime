@@ -1,7 +1,7 @@
 var q = require('request')
-    ,pg = require('pg')
+    ,query = require('./common').query
     ,apricot = require('apricot').Apricot
-    ,promise = require('promised-io/lib/promise.js')
+    ,promise = require('promised-io/promise')
     ;
 /**
  * Wraps a Node.JS style asynchronous function `function(err, result) {}` 
@@ -30,9 +30,6 @@ var promisify = function(nodeAsyncFn, context) {
     return defer.promise;
   };
 };
-
-var client = new pg.Client(process.env.DATABASE_URL);
-client.connect();
 
 promisify(q.post)({uri: 'http://www.liq.wa.gov/lcbservices/LicensingInfo/MediaReleasesReport3Excel.asp', body:
     'txtFormat=Excel&cboCity=SEATTLE&hiddenCounty=King', headers: {'Content-Type':
@@ -70,7 +67,7 @@ promisify(q.post)({uri: 'http://www.liq.wa.gov/lcbservices/LicensingInfo/MediaRe
                     });
                     console.log(results);
 
-                    var getCallback = function (d) {
+                    /*var getCallback = function (d) {
                         return function (err, result) {
                             if (err && err.code != '23505') {
                                 d.reject(err);
@@ -78,13 +75,13 @@ promisify(q.post)({uri: 'http://www.liq.wa.gov/lcbservices/LicensingInfo/MediaRe
                                 d.resolve();
                             }
                         }
-                    };
+                    };*/
                     var promises = [];
                     for (var i = 0; i < results.length; i++)
                     {
                         var d = promise.defer();
                         promises.push(d);
-                        client.query({
+                        query({
                             name: 'insert',
                             text: "INSERT INTO liquor_actions (current_business_name, new_business_name, business_location, current_applicant, new_applicant, license_type, application_type, license_number, date)VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
                             values: [
@@ -98,9 +95,7 @@ promisify(q.post)({uri: 'http://www.liq.wa.gov/lcbservices/LicensingInfo/MediaRe
                                 results[i]['License Number'],
                                 results[i]['Date'],
                             ]
-                        },
-                        getCallback(d)
-                        );
+                        });
                     }
 
                     promise.all(promises).then(function () {

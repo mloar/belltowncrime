@@ -1,51 +1,8 @@
 var q = require('request')
-    ,pg = require('pg')
+    ,query = require('./common').query
+    ,waitAll = require('./common').waitAll
+    ,end = require('./common').end
     ;
-var client = new pg.Client(process.env.DATABASE_URL);
-client.connect();
-client.on('drain', function() {
-  process.exit();
-  });
-
-var query = {
-    "originalViewId" : "948u-h4tt",
-    "name" :  "Recent",
-    "query" : {
-        "filterCondition" : {
-            "type" : "operator",
-            "value" : "OR",
-            "children" : [ {
-                "type" : "operator",
-                "value" : "GREATER_THAN",
-                "children" : [ {
-                    "columnId" : 4533475,
-                    "type" : "column"
-                }, {
-                    "type" : "literal",
-                    "value" : "2012-01-01T00:00:00"
-                } ],
-            } ]
-        }
-    }
-};
-
-//q.post({
-//    uri: 'http://data.seattle.gov/views/INLINE/rows.json?method=getRows&start=0&length=100',
-//    json: query
-//    }, function (err, response, body) {
-//        if (!err && response.statusCode == 200)
-//        {
-//            console.log(JSON.stringify(body));
-//        }
-//        else if (err)
-//        {
-//            throw err;
-//        }
-//        else
-//        {
-//            console.log(response);
-//        }
-//    });
 
 q('http://data.seattle.gov/views/948u-h4tt/', function (err, response, body) {
         if (!err && response.statusCode == 200)
@@ -61,17 +18,17 @@ q('http://data.seattle.gov/views/948u-h4tt/', function (err, response, body) {
                 function (err, response, body) {
                     if (!err && response.statusCode == 200)
                     {
+                        var promises = [];
                         var results = JSON.parse(body);
 
-                        client.pauseDrain();
-                        client.query({
+                        promises.push(query({
                             name: 'trim',
                             text: "DELETE FROM crimes WHERE occurred_date < NOW() - INTERVAL '2 months'",
                             values: []
-                            });
+                            }));
                         for (var i = 0; i < results.length; i++)
                         {
-                            client.query({
+                            promises.push(query({
                                 name: 'insert',
                                 text: "INSERT INTO crimes (cdw_number, go_number, offense_code, offense_code_ext, date_reported, occurred_date, hundred_block_location, latitude, longitude) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
                                 values: [
@@ -88,12 +45,13 @@ q('http://data.seattle.gov/views/948u-h4tt/', function (err, response, body) {
                             }, function (err, result) {
                                 if (err && err.code != '23505')
                                     console.log(err);
-                            });
+                            }));
                         }
 
                         // Remove rows erroneously exposed in view.
-                        client.query("DELETE FROM crimes WHERE hundred_block_location LIKE '%RICHMOND BEACH DR' OR hundred_block_location LIKE '%PINE ST' OR hundred_block_location LIKE '%8TH AVE'");
-                        client.resumeDrain();
+                        promises.push(query("DELETE FROM crimes WHERE hundred_block_location LIKE '%RICHMOND BEACH DR' OR hundred_block_location LIKE '%PINE ST' OR hundred_block_location LIKE '%8TH AVE'"));
+
+                        waitAll(promises).then(end());
                     }
                     else if (err)
                     {
