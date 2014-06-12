@@ -10,7 +10,7 @@
   },
   "scripts": {
     "start": "node server.js",
-    "update": "node update.js",
+    "crime": "node crime.js",
     "liquor": "node liquor.js"
   },
   "engines": {
