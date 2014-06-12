@@ -8,6 +8,6 @@ table
         tr
             td= row.hundred_block_location
             td= row.description
-            td= row.occurred_date
+            td= row.occurred_date.toLocaleDateString()
             td
                 a(href='http://web1.seattle.gov/police/records/PoliceReports/PoliceReport.ashx?go='+row.go_number)= row.go_number
