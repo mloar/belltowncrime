@@ -4,7 +4,10 @@
   "version": "0.1.0",
   "author": "Matt Loar",
   "email": "matt@loar.name",
-  "main": "./app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mloar/belltowncrime.git"
+  },
   "engines": {
     "node": "0.11.13"
   },
