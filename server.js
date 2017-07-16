@@ -16,7 +16,7 @@ var render = function(view, opts) {
     layout      = opts.layout === undefined ? true : opts.layout;
     layout      = layout === true ? 'layout.pug' : layout;
 
-    var renderedView = pug.compile(fs.readFileSync(viewPath, { encoding: 'utf8' }), opts)(opts.locals);
+    var renderedView = pug.compileFile(viewPath, opts)(opts.locals);
 
     if (layout) {
         opts.locals.body = renderedView;
