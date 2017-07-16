@@ -14,7 +14,7 @@
     "liquor": "node liquor.js"
   },
   "engines": {
-    "node": "0.11.13"
+    "node": "8.1.x"
   },
   "dependencies": {
     "apricot": "0.0.6",
