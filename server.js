@@ -57,15 +57,13 @@ router.get('/major', function (req) {
             });
 });
 router.get('/main.css', function (req) {
-    var css = fs.readFileSync('main.css', { encoding: 'utf8' });
-    return {
-        status: 200,
-        headers: {
-            'content-type': 'text/css',
-            'content-length': css.length
-        },
-        body: css
-    };
+    return bogart.promisify(fs.readFile)('main.css', 'utf-8').then(function (body) {
+        return {
+            status: 200,
+            body: [body],
+            headers: {'content-type': 'text/css', 'content-length': Buffer.byteLength(body, 'utf-8')}
+        };
+    });
 });
 
 var app = bogart.app();
