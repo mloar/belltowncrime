@@ -14,14 +14,14 @@
     "liquor": "node liquor.js"
   },
   "engines": {
-    "node": "8.1.x"
+    "node": "8.9.x"
   },
   "dependencies": {
     "apricot": "0.0.6",
-    "pg": "4.5.5",
-    "promised-io": "0.2.3",
-    "pug": "2.0.0-rc.2",
-    "request": "2.81.0",
-    "bogart": "0.5.25"
+    "pg": "7.4.x",
+    "promised-io": "0.3.x",
+    "pug": "2.0.x",
+    "request": "2.87.x",
+    "bogart": "0.7.x"
   }
 }
